@@ -21,6 +21,6 @@ data class Cell(
     val attributes: Attributes = Attributes()
 ) {
     companion object {
-        private val EMPTY_CELL = Cell(' ')
+        val EMPTY_CELL = Cell(' ')
     }
 }

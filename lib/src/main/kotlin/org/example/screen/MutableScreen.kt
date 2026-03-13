@@ -9,13 +9,9 @@ import org.example.models.ScrolledLines
 internal interface MutableScreen : Screen {
     var attributes: Attributes
     override var cursor: Position
-    fun moveCursor(direction: Direction, distance: Int)
 
-    fun write(cells: List<Cell>): ScrolledLines
-    fun insert(cells: List<Cell>): ScrolledLines
-    fun fill(cell: Cell): ScrolledLines
+    fun write(text: String): ScrolledLines
+    fun insert(text: String): ScrolledLines
 
     fun insertEmptyLineAtBottom(): ScrolledLines
-    fun clearScreen(): ScrolledLines
-    fun clearBuffer(): ScrolledLines
 }
