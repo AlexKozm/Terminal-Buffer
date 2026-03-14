@@ -101,9 +101,9 @@ class MutableScreenInsertTest {
 
 
     @Test
-    fun `insert chars moving other chars for a few lines and scrolling`() {
+    fun `insert chars moving previous chars for a few lines into scrollback`() {
         val fill           = """|wero|
-                                |C---|
+                                |Cr--|
                                 |----|""".inputTrim()
         val cursorPosition = Position(1, 0)
         val input          = """|aszx|
@@ -114,8 +114,86 @@ class MutableScreenInsertTest {
                                 |aszx|""".inputTrim()
         val expectedOutput = """|cvnm|
                                 |eruv|
-                                |C---|""".terminalTrim()
+                                |Cr--|""".terminalTrim()
         val expectedCursorPosition = Position(2, 0)
+
+        val screen = MutableScreenImpl(4, 3)
+        screen.write(fill).joinToStr()
+
+        screen.cursor = cursorPosition
+        val scroll = screen.insert(input).joinToStr()
+        val contentString = screen.content.joinToStr()
+
+        assertEquals(expectedCursorPosition, screen.cursor)
+        assertEquals(expectedScroll, scroll.adjustToTest())
+        assertEquals(expectedOutput, contentString.adjustToTest())
+    }
+
+    @Test
+    fun `shift to scrollback text inserted at the beginning without inserting it to screen`() {
+        val fill           = """|Cero|
+                                |wras|
+                                |zxc-|""".inputTrim()
+        val cursorPosition = Position(0, 0)
+        val input          = """|aszx|""".inputTrim()
+
+        val expectedScroll = """|aszx|""".inputTrim()
+        val expectedOutput = """|Cero|
+                                |wras|
+                                |zxc-|""".terminalTrim()
+        val expectedCursorPosition = Position(0, 0)
+
+        val screen = MutableScreenImpl(4, 3)
+        screen.write(fill).joinToStr()
+
+        screen.cursor = cursorPosition
+        val scroll = screen.insert(input).joinToStr()
+        val contentString = screen.content.joinToStr()
+
+        assertEquals(expectedCursorPosition, screen.cursor)
+        assertEquals(expectedScroll, scroll.adjustToTest())
+        assertEquals(expectedOutput, contentString.adjustToTest())
+    }
+
+    @Test
+    fun `shift to scrollback inserted text from second position without inserting it to screen`() {
+        val fill           = """|eCro|
+                                |wras|
+                                |zxc-|""".inputTrim()
+        val cursorPosition = Position(0, 1)
+        val input          = """|aszx|""".inputTrim()
+
+        val expectedScroll = """|easz|""".inputTrim()
+        val expectedOutput = """|xCro|
+                                |wras|
+                                |zxc-|""".terminalTrim()
+        val expectedCursorPosition = Position(0, 1)
+
+        val screen = MutableScreenImpl(4, 3)
+        screen.write(fill).joinToStr()
+
+        screen.cursor = cursorPosition
+        val scroll = screen.insert(input).joinToStr()
+        val contentString = screen.content.joinToStr()
+
+        assertEquals(expectedCursorPosition, screen.cursor)
+        assertEquals(expectedScroll, scroll.adjustToTest())
+        assertEquals(expectedOutput, contentString.adjustToTest())
+    }
+
+    @Test
+    fun `shift cursor to scrollback places cursor to (0, 0)`() {
+        val fill           = """|eCro|
+                                |wras|
+                                |zxc-|""".inputTrim()
+        val cursorPosition = Position(0, 1)
+        val input          = """|as|""".inputTrim()
+
+        val expectedScroll = """|easC|""".inputTrim()
+        val expectedOutput = """|rowr|
+                                |aszx|
+                                |c---|""".terminalTrim()
+        val expectedCursorPosition = Position(0, 0)
 
         val screen = MutableScreenImpl(4, 3)
         screen.write(fill).joinToStr()

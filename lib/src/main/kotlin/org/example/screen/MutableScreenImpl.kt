@@ -99,14 +99,6 @@ internal class MutableScreenImpl(override val width: Int, override val height: I
             }
         }
         return ScrolledLines(scrolled)
-//        val linesToAdd =
-//            if (text.length <= cellsTillEnd) 0
-//            else (text.length - cellsTillEnd) divideCeil width
-//        val scrolled = (1..linesToAdd).map { insertEmptyLineAtBottom().lines.first() }.let { ScrolledLines(it) }
-//        cursor =
-//            if (linesToAdd >= height) Position(0, 0)
-//            else cursor.copy(column = cursor.column - linesToAdd)
-//        TODO("Not yet implemented")
     }
 
     override fun insert(text: String): ScrolledLines {
@@ -116,7 +108,7 @@ internal class MutableScreenImpl(override val width: Int, override val height: I
         val textToInsert = text.map { Cell(it, attributes) }.toMutableList()
 
         var emptyCellsCounter = 0
-        while (emptyCellsCounter < text.length) {
+        while (emptyCellsCounter < textToInsert.size) {
             if (!shiftIterator.hasNext()) {
                 if (cursor.row == 0) {
                     do {
@@ -129,6 +121,7 @@ internal class MutableScreenImpl(override val width: Int, override val height: I
                             break
                         }
                     } while (true)
+                    cursor = Position(0, 0)
                 } else {
                     cursor = cursor.copy(row = cursor.row - 1)
                 }
@@ -145,28 +138,29 @@ internal class MutableScreenImpl(override val width: Int, override val height: I
         }
 
         val insertTextIterator = GridIterator(cursor)
-        text.map { Cell(it, attributes) }.forEach {
+        textToInsert.forEach {
             val pos = insertTextIterator.next()
             grid[pos.row][pos.column] = it
             cursor = pos
         }
 
-        cursor = when {
-            cursor == Position(height - 1, width - 1) -> {
-                scrolled += insertEmptyLineAtBottom().lines.first()
-                Position(height - 1, 0)
-            }
-            cursor.column == width - 1 -> {
-                Position(cursor.row + 1, 0)
-            }
-            else -> {
-                cursor.copy(column = cursor.column + 1)
+        if (textToInsert.isNotEmpty()) {
+            cursor = when {
+                cursor == Position(height - 1, width - 1) -> {
+                    scrolled += insertEmptyLineAtBottom().lines.first()
+                    Position(height - 1, 0)
+                }
+                cursor.column == width - 1 -> {
+                    Position(cursor.row + 1, 0)
+                }
+                else -> {
+                    cursor.copy(column = cursor.column + 1)
+                }
             }
         }
 
-        val insertShiftIterator = GridIterator(cursor)
         movedChars.forEach {
-            val pos = insertShiftIterator.next()
+            val pos = insertTextIterator.next()
             grid[pos.row][pos.column] = it
         }
 
