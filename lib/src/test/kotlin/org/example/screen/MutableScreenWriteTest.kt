@@ -1,38 +1,46 @@
 package org.example.screen
 
+import org.example.models.Cell
 import org.example.models.Line
 import org.example.models.Position
 import org.example.models.ScrolledLines
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 
-class MutableScreenImplTest {
+internal fun Line.joinToStr() = cells.joinToString("") {
+    when (it) {
+        is Cell -> it.char.toString()
+        Cell.Empty -> "-"
+    }
+}
+internal fun List<Line>.joinToStr() = joinToString("") { line -> line.joinToStr() }
+internal fun ScrolledLines.joinToStr() = lines.joinToStr()
 
-    private fun Line.joinToStr() = cells.joinToString("") { it.char.toString() }
-    private fun List<Line>.joinToStr() = joinToString("") { line -> line.joinToStr() }
-    private fun ScrolledLines.joinToStr() = lines.joinToStr()
-
-    private fun String.terminalTrim() = this
-        .split("|")
-        .filterIndexed { index, _ -> index % 2 == 1 }
-        .joinToString("")
-        .filter { it != '-' }
-        .filter { if (it == ' ') error("Use '_' as a space") else true }
+internal fun String.terminalTrim() = this
+    .split("|")
+    .filterIndexed { index, _ -> index % 2 == 1 }
+    .joinToString("")
 
 
-    private fun String.adjustToTest() = replace(' ', '_')
+internal fun String.inputTrim() = terminalTrim()
+    .filter { it != '-' }
+    .filter { if (it == ' ') error("Use '_' as a space") else true }
 
+
+internal fun String.adjustToTest() = replace(' ', '_')
+
+class MutableScreenWriteTest {
 
     @Test
     fun `write whole screen except last char fills screen and makes no scroll`() {
         val input          = """|1234|
                                 |1234|
-                                |123-|""".terminalTrim()
+                                |123-|""".inputTrim()
 
         val expectedScroll = ""
         val expectedOutput = """|1234|
                                 |1234|
-                                |123_|""".terminalTrim()
+                                |123-|""".terminalTrim()
 
         val screen = MutableScreenImpl(4, 3)
         val scroll = screen.write(input).joinToStr()
@@ -46,12 +54,12 @@ class MutableScreenImplTest {
     fun `write whole screen fills screen and makes one scroll`() {
         val input          = """|1234|
                                 |1234|
-                                |1234|""".terminalTrim()
+                                |1234|""".inputTrim()
 
         val expectedScroll = """|1234|""".terminalTrim()
         val expectedOutput = """|1234|
                                 |1234|
-                                |____|""".terminalTrim()
+                                |----|""".terminalTrim()
 
         val screen = MutableScreenImpl(4, 3)
         val scroll = screen.write(input).joinToStr()
@@ -65,14 +73,14 @@ class MutableScreenImplTest {
     fun `write less than line left just replaces chars`() {
         val fill           = """|1234|
                                 |1c34|
-                                |123-|""".terminalTrim()
+                                |123-|""".inputTrim()
         val newCursorPosition = Position(1, 1)
         val input = "te"
 
         val expectedScroll = ""
         val expectedOutput = """|1234|
                                 |1te4|
-                                |123_|""".terminalTrim()
+                                |123-|""".terminalTrim()
 
         val screen = MutableScreenImpl(4, 3)
         screen.write(fill).joinToStr()
@@ -90,16 +98,16 @@ class MutableScreenImplTest {
     fun `write from start till the end of the line`() {
         val fill           = """|weru|
                                 |Casz|
-                                |cnv-|""".terminalTrim()
+                                |cnv-|""".inputTrim()
         val cursorPosition = Position(1, 0)
         val input          = """|----|
                                 |TEST|
-                                |----|""".terminalTrim()
+                                |----|""".inputTrim()
 
         val expectedScroll = ""
         val expectedOutput = """|weru|
                                 |TEST|
-                                |cnv_|""".terminalTrim()
+                                |cnv-|""".terminalTrim()
         val expectedCursorPosition = Position(2, 0)
 
         val screen = MutableScreenImpl(4, 3)
@@ -118,16 +126,16 @@ class MutableScreenImplTest {
     fun `write more than line left but less that whole screen`() {
         val fill           = """|aCow|
                                 |erus|
-                                |zxc-|""".terminalTrim()
+                                |zxc-|""".inputTrim()
         val cursorPosition = Position(0, 1)
         val input          = """|-TES|
                                 |TTES|
-                                |TE--|""".terminalTrim()
+                                |TE--|""".inputTrim()
 
         val expectedScroll = ""
         val expectedOutput = """|aTES|
                                 |TTES|
-                                |TEc_|""".terminalTrim()
+                                |TEc-|""".terminalTrim()
         val expectedCursorPosition = Position(2, 2)
 
         val screen = MutableScreenImpl(4, 3)
@@ -146,19 +154,19 @@ class MutableScreenImplTest {
     fun `write more than whole screen`() {
         val fill           = """|aCow|
                                 |erus|
-                                |zxc-|""".terminalTrim()
+                                |zxc-|""".inputTrim()
         val cursorPosition = Position(0, 1)
         val input          = """|-TES|
                                 |TTES|
                                 |TTES|
                                 |TTES|
-                                |TE--|""".terminalTrim()
+                                |TE--|""".inputTrim()
 
         val expectedScroll = """|aTES|
                                 |TTES|""".terminalTrim()
         val expectedOutput = """|TTES|
                                 |TTES|
-                                |TE__|""".terminalTrim()
+                                |TE--|""".terminalTrim()
         val expectedCursorPosition = Position(2, 2)
 
         val screen = MutableScreenImpl(4, 3)
