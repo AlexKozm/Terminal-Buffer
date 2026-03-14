@@ -26,10 +26,10 @@ class MutableTerminalBufferImpl(
 
     override fun moveCursor(direction: Direction, distance: Int) {
         cursor = when (direction) {
-            Direction.UP -> cursor.copy(row = (cursor.row - 1).coerceAtLeast(0))
-            Direction.DOWN -> cursor.copy(row = (cursor.row + 1).coerceAtMost(height - 1))
-            Direction.LEFT -> cursor.copy(column = (cursor.column - 1).coerceAtLeast(0))
-            Direction.RIGHT -> cursor.copy(column = (cursor.column + 1).coerceAtMost(width - 1))
+            Direction.UP -> cursor.copy(row = (cursor.row - distance).coerceAtLeast(0))
+            Direction.DOWN -> cursor.copy(row = (cursor.row + distance).coerceAtMost(height - 1))
+            Direction.LEFT -> cursor.copy(column = (cursor.column - distance).coerceAtLeast(0))
+            Direction.RIGHT -> cursor.copy(column = (cursor.column + distance).coerceAtMost(width - 1))
         }
     }
 
