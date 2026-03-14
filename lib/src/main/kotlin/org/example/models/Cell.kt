@@ -20,7 +20,16 @@ the erased state and a character position imaging SPACE.
 Testing `echo -e "\u001B[41m\u001B[5B\u001B[6Caaa\u001B[6Da"` in kde konsole
 shows, that probable an erased sell is a cell without char and attributes
  */
-sealed interface SomeCell
+sealed interface SomeCell {
+    fun charOr(char: Char) = when (this) {
+        is Cell -> this.char
+        Cell.Empty -> char
+    }
+    fun attributesOr(attributes: Attributes) = when (this) {
+        is Cell -> this.attributes
+        Cell.Empty -> attributes
+    }
+}
 data class Cell(
     val char: Char,
     val attributes: Attributes = Attributes()

@@ -167,6 +167,10 @@ internal class MutableScreenImpl(override val width: Int, override val height: I
         return ScrolledLines(scrolled)
     }
 
+    override fun fill(char: Char) {
+        grid[cursor.row] = Array(width) { Cell(char, attributes) }
+    }
+
     override fun insertEmptyLineAtBottom(): ScrolledLines {
         val scrolledLine = Line(grid.first().toList())
         for (i in 1..< grid.size) {

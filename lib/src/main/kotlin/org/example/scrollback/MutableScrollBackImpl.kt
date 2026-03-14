@@ -24,6 +24,10 @@ internal class MutableScrollBackImpl(
         grid.addAll(list.lines)
     }
 
+    override fun clear() {
+        grid.clear()
+    }
+
     override fun line(lineNumber: Int): Line {
         return grid.getOrNull(lineNumber) ?: Line(List(width) { Cell.Empty })
     }
@@ -32,6 +36,7 @@ internal class MutableScrollBackImpl(
         get() = grid.toList()
 
     override fun cellAt(row: Int, column: Int): SomeCell {
-        return grid.getOrNull(row)?.cells?.getOrNull(column) ?: Cell.Empty
+        val realCol = if (row < 0) grid.size + row else row
+        return grid.getOrNull(realCol)?.cells?.getOrNull(column) ?: Cell.Empty
     }
 }

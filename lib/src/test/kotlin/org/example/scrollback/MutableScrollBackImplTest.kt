@@ -76,5 +76,6 @@ class MutableScrollBackImplTest {
 
         assertEquals(Cell('5'), scrollback.cellAt(1, 2))
         assertEquals(Cell.Empty, scrollback.cellAt(5, 10))
+        assertEquals(Cell('5'), scrollback.cellAt(-1, 2))
     }
 }
