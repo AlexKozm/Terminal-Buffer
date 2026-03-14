@@ -111,7 +111,7 @@ class MutableScreenInsertTest {
                                 |eruv|""".inputTrim()
 
         val expectedScroll = """|wero|
-                                |aszx|""".inputTrim()
+                                |aszx|""".terminalTrim()
         val expectedOutput = """|cvnm|
                                 |eruv|
                                 |Cr--|""".terminalTrim()
@@ -137,7 +137,7 @@ class MutableScreenInsertTest {
         val cursorPosition = Position(0, 0)
         val input          = """|aszx|""".inputTrim()
 
-        val expectedScroll = """|aszx|""".inputTrim()
+        val expectedScroll = """|aszx|""".terminalTrim()
         val expectedOutput = """|Cero|
                                 |wras|
                                 |zxc-|""".terminalTrim()
@@ -163,7 +163,7 @@ class MutableScreenInsertTest {
         val cursorPosition = Position(0, 1)
         val input          = """|aszx|""".inputTrim()
 
-        val expectedScroll = """|easz|""".inputTrim()
+        val expectedScroll = """|easz|""".terminalTrim()
         val expectedOutput = """|xCro|
                                 |wras|
                                 |zxc-|""".terminalTrim()
@@ -189,11 +189,37 @@ class MutableScreenInsertTest {
         val cursorPosition = Position(0, 1)
         val input          = """|as|""".inputTrim()
 
-        val expectedScroll = """|easC|""".inputTrim()
+        val expectedScroll = """|easC|""".terminalTrim()
         val expectedOutput = """|rowr|
                                 |aszx|
                                 |c---|""".terminalTrim()
         val expectedCursorPosition = Position(0, 0)
+
+        val screen = MutableScreenImpl(4, 3)
+        screen.write(fill).joinToStr()
+
+        screen.cursor = cursorPosition
+        val scroll = screen.insert(input).joinToStr()
+        val contentString = screen.content.joinToStr()
+
+        assertEquals(expectedCursorPosition, screen.cursor)
+        assertEquals(expectedScroll, scroll.adjustToTest())
+        assertEquals(expectedOutput, contentString.adjustToTest())
+    }
+
+    @Test
+    fun `insert chars moving some following chars forward`() {
+        val fill           = """|wero|
+                                |Cr--|
+                                |--m-|""".inputTrim()
+        val cursorPosition = Position(1, 0)
+        val input          = """|aszx|""".inputTrim()
+
+        val expectedScroll = ""
+        val expectedOutput = """|wero|
+                                |aszx|
+                                |Crm-|""".terminalTrim()
+        val expectedCursorPosition = Position(2, 0)
 
         val screen = MutableScreenImpl(4, 3)
         screen.write(fill).joinToStr()
