@@ -27,7 +27,7 @@ internal fun String.inputTrim() = terminalTrim()
     .filter { if (it == ' ') error("Use '_' as a space") else true }
 
 
-internal fun String.adjustToTest() = replace(' ', '_')
+internal fun String.adjustToTest() = replace(' ', '_').filter { it != '\n' }
 
 class MutableScreenWriteTest {
 
