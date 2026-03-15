@@ -11,10 +11,11 @@ import org.example.scrollback.MutableScrollBackImpl
 
 class MutableTerminalBufferImpl(
     override val width: Int,
-    override val height: Int
+    override val height: Int,
+    scrollbackSize: Int = 10
 ) : MutableTerminalBuffer {
     private val screen = MutableScreenImpl(width, height)
-    private val scrollBack = MutableScrollBackImpl(width, height)
+    private val scrollBack = MutableScrollBackImpl(width, scrollbackSize)
 
     override var attributes: Attributes
         get() = screen.attributes
@@ -77,7 +78,7 @@ class MutableTerminalBufferImpl(
     override val screenAndScrollback: String
         get() = (scrollBack.content + screen.content).toStr()
 
-    private fun List<Line>.toStr() = joinToString("\n") { it.cells.joinToString {
+    private fun List<Line>.toStr() = joinToString("\n") { it.cells.joinToString("") {
         when (it) {
             is Cell -> it.char.toString()
             Cell.Empty -> " "
