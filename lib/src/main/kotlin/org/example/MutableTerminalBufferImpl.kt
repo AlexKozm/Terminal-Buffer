@@ -25,6 +25,7 @@ class MutableTerminalBufferImpl(
         set(value) { screen.cursor = value }
 
     override fun moveCursor(direction: Direction, distance: Int) {
+        require(distance >= 0) { "Distance should not be negative" }
         cursor = when (direction) {
             Direction.UP -> cursor.copy(row = (cursor.row - distance).coerceAtLeast(0))
             Direction.DOWN -> cursor.copy(row = (cursor.row + distance).coerceAtMost(height - 1))

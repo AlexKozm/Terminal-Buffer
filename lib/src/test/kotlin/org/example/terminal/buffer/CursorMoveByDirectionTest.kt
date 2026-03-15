@@ -5,6 +5,7 @@ import org.example.MutableTerminalBufferImpl
 import org.example.models.Direction
 import org.example.models.Position
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertThrows
 import kotlin.test.assertEquals
 
 class CursorMoveByDirectionTest {
@@ -102,5 +103,13 @@ class CursorMoveByDirectionTest {
         terminal.cursor = Position(0, 5)
         terminal.moveCursor(Direction.LEFT, 100)
         assertEquals(Position(0, 0), terminal.cursor)
+    }
+
+    @Test
+    fun `negative distance throws`() {
+        val terminal: MutableTerminalBuffer = MutableTerminalBufferImpl(6, 4)
+        assertThrows<IllegalArgumentException> {
+            terminal.moveCursor(Direction.LEFT, -1)
+        }
     }
 }

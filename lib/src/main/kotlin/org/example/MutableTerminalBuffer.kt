@@ -15,7 +15,9 @@ interface MutableTerminalBuffer : TerminalBuffer {
 
     /**
      * Moves cursor within the frame of the screen.
-     * If action can't be applied, then does nothing
+     * If action can't be applied, then does nothing.
+     *
+     * [distance] should not be negative.
      */
     fun moveCursor(direction: Direction, distance: Int)
 
